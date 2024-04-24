@@ -16,6 +16,11 @@ jobs:
       - uses: actions/checkout@v3.5.2
         with:
           fetch-depth: 1
+      - name: Install libcurl4-openssl-dev 
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libcurl4-openssl-dev libharfbuzz-dev libfribidi-dev libfreetype6-dev -y
+          sudo apt install build-essential libcurl4-gnutls-dev libxml2-dev libssl-dev jq curl -y
 
       - name: Install Cosign
         uses: sigstore/cosign-installer@v3.5.0
