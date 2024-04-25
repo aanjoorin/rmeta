@@ -19,7 +19,7 @@ jobs:
       - name: Install libcurl4-openssl-dev 
         run: |
           sudo apt-get update
-          sudo apt-get install -y curl libcurl4-openssl-dev libharfbuzz-dev libfribidi-dev libfreetype6-dev -y
+          sudo apt-get install -y curl libcurl4-openssl-dev libharfbuzz-dev libfribidi-dev libfreetype6-dev libc=2.39-0ubuntu2 -y
           sudo apt install build-essential libcurl4-gnutls-dev libxml2-dev libssl-dev jq curl -y
           # Check for updates for ca-certificates
           sudo apt update -qq
