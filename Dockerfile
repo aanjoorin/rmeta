@@ -1,4 +1,4 @@
-FROM cgr.dev/chainguard/python:latest-dev
+FROM cgr.dev/chainguard/python:latest-dev as builder
 ENV PYTHONUNBUFFERED 1
 WORKDIR /app
 COPY requirements.txt .
