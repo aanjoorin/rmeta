@@ -21,8 +21,6 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y curl libcurl4-openssl-dev libharfbuzz-dev libfribidi-dev libfreetype6-dev libc6 -y
           sudo apt install build-essential libcurl4-gnutls-dev libxml2-dev libssl-dev jq curl -y
-          export DOCKER_CONTENT_TRUST=0
-          docker pull cgr.dev/chainguard/python
 
           # # Check for updates for ca-certificates
           # sudo apt update -qq
@@ -51,11 +49,12 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-         
+                    
       - id: docker_meta
         uses: docker/metadata-action@v5.5.1
         with:
-          images: ghcr.io/sigstore/sample-honk
+          images:  ghcr.io/${{ github.repository }}/chainguard:latest
+          #ghcr.io/sigstore/sample-honk
           tags: type=sha,format=long
         
       - name: Build and Push container images
