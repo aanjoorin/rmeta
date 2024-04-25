@@ -21,6 +21,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y curl libcurl4-openssl-dev libharfbuzz-dev libfribidi-dev libfreetype6-dev libc6 -y
           sudo apt install build-essential libcurl4-gnutls-dev libxml2-dev libssl-dev jq curl -y
+          sudo apt install --reinstall ca-certificates -y
 
           # # Check for updates for ca-certificates
           # sudo apt update -qq
@@ -50,22 +51,28 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
                     
-      - id: docker_meta
-        uses: docker/metadata-action@v5.5.1
-        with:
-          images:  ghcr.io/${{ github.repository }}/chainguard:latest
-          #ghcr.io/sigstore/sample-honk
-          tags: type=sha,format=long
+      # - id: docker_meta
+      #   uses: docker/metadata-action@v5.5.1
+      #   with:
+      #     images:  ghcr.io/${{ github.repository }}/chainguard:latest
+      #     #ghcr.io/sigstore/sample-honk
+      #     tags: type=sha,format=long
         
-      - name: Build and Push container images
-        run: |
-          docker build -t ghcr.io/${{ github.repository }}/chainguard:latest .
-        # uses: docker/build-push-action@v5.3.0
-        # id: build-and-push
-        # with:
-        #   platforms: linux/amd64,linux/arm/v7,linux/arm64
-        #   push: true
-        #   tags: ${{ steps.docker_meta.outputs.tags }}
+      # - name: Build container images
+      #   run: |
+      #     docker build -t ghcr.io/${{ github.repository }}/chainguard:latest .
+        
+      #   # uses: docker/build-push-action@v5.3.0
+        
+      - name: Build & Push container image
+        uses: docker/build-push-action@v5.3.0
+        with:
+          context: .
+          file: Dockerfile
+          tags: ghcr.io/${{ github.repository }}/chainguard:latest
+          platforms: linux/amd64,linux/arm/v7,linux/arm64
+          #push: true
+          #tags: ${{ steps.docker_meta.outputs.tags }}
        
       # https://docs.github.com/en/actions/security-guides/security-hardening-for-github-actions#using-an-intermediate-environment-variable
       - name: Sign image with a key
