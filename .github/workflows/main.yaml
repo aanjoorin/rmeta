@@ -21,17 +21,19 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y curl libcurl4-openssl-dev libharfbuzz-dev libfribidi-dev libfreetype6-dev libc6 -y
           sudo apt install build-essential libcurl4-gnutls-dev libxml2-dev libssl-dev jq curl -y
-          # Check for updates for ca-certificates
-          sudo apt update -qq
-          if [ $(apt list --upgradable 2>/dev/null | grep ca-certificates | wc -l) -gt 0 ]; then
-            # Updates available, so update ca-certificates
-            sudo apt install --only-upgrade -y ca-certificates
-          else
-            # No updates available or error occurred, so reinstall ca-certificates
-            sudo apt install --reinstall -y ca-certificates
-          fi
-          # Update certificate authorities
-          sudo update-ca-certificates
+          export DOCKER_CONTENT_TRUST=0
+
+          # # Check for updates for ca-certificates
+          # sudo apt update -qq
+          # if [ $(apt list --upgradable 2>/dev/null | grep ca-certificates | wc -l) -gt 0 ]; then
+          #   # Updates available, so update ca-certificates
+          #   sudo apt install --only-upgrade -y ca-certificates
+          # else
+          #   # No updates available or error occurred, so reinstall ca-certificates
+          #   sudo apt install --reinstall -y ca-certificates
+          # fi
+          # # Update certificate authorities
+          # sudo update-ca-certificates
           
       - name: Install Cosign
         uses: sigstore/cosign-installer@v3.5.0
