@@ -92,7 +92,7 @@ jobs:
           COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
           # DIGEST: ${{ steps.build-and-push.outputs.digest }}
        
-      - name: Sign Image with Cosign
+      - name: Push Image
         run: docker push ghcr.io/${{ github.repository }}/chainguard:latest
          
       # - name: Sign the images with GitHub OIDC Token
