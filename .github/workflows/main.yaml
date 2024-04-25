@@ -19,8 +19,9 @@ jobs:
       - name: Install libcurl4-openssl-dev 
         run: |
           sudo apt-get update
-          sudo apt-get install -y libcurl4-openssl-dev libharfbuzz-dev libfribidi-dev libfreetype6-dev -y
-          sudo apt install build-essential libcurl4-gnutls-dev libxml2-dev libssl-dev jq curl -y
+          sudo apt-get install -y curl 
+          # libcurl4-openssl-dev libharfbuzz-dev libfribidi-dev libfreetype6-dev -y
+          #sudo apt install build-essential libcurl4-gnutls-dev libxml2-dev libssl-dev jq curl -y
 
       - name: Install Cosign
         uses: sigstore/cosign-installer@v3.5.0
@@ -46,7 +47,7 @@ jobs:
 
       - name: Build and Push container images
         run: |
-          docker build --insecure -t ghcr.io/${{ github.repository }}/chainguard:latest .
+          DOCKER_BUILDKIT=0 docker build --insecure -t ghcr.io/${{ github.repository }}/chainguard:latest .
         # uses: docker/build-push-action@v5.3.0
         # id: build-and-push
         # with:
