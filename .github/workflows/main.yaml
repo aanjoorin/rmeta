@@ -45,34 +45,43 @@ jobs:
           tags: type=sha,format=long
 
       - name: Build and Push container images
-        uses: docker/build-push-action@v5.3.0
-        id: build-and-push
-        with:
-          platforms: linux/amd64,linux/arm/v7,linux/arm64
-          push: true
-          tags: ${{ steps.docker_meta.outputs.tags }}
-
+        run: |
+          docker build -t ghcr.io/${{ github.repository }}/chainguard:latest .
+        # uses: docker/build-push-action@v5.3.0
+        # id: build-and-push
+        # with:
+        #   platforms: linux/amd64,linux/arm/v7,linux/arm64
+        #   push: true
+        #   tags: ${{ steps.docker_meta.outputs.tags }}
+       
       # https://docs.github.com/en/actions/security-guides/security-hardening-for-github-actions#using-an-intermediate-environment-variable
       - name: Sign image with a key
         run: |
-          images=""
-          for tag in ${TAGS}; do
-            images+="${tag}@${DIGEST} "
-          done
-          cosign sign --yes --key env://COSIGN_PRIVATE_KEY ${images}
+          cosign sign \
+            --key ${COSIGN_PRIVATE_KEY} \
+            --password ${COSIGN_PASSWORD} \
+            ghcr.io/${{ github.repository }}/chainguard:latest
+          # images=""
+          # for tag in ${TAGS}; do
+          #   images+="${tag}@${DIGEST} "
+          # done
+          # cosign sign --yes --key env://COSIGN_PRIVATE_KEY ${images}
         env:
-          TAGS: ${{ steps.docker_meta.outputs.tags }}
+          # TAGS: ${{ steps.docker_meta.outputs.tags }}
           COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
           COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
-          DIGEST: ${{ steps.build-and-push.outputs.digest }}
-
-      - name: Sign the images with GitHub OIDC Token
-        env:
-          DIGEST: ${{ steps.build-and-push.outputs.digest }}
-          TAGS: ${{ steps.docker_meta.outputs.tags }}
-        run: |
-          images=""
-          for tag in ${TAGS}; do
-            images+="${tag}@${DIGEST} "
-          done
-          cosign sign --yes ${images}
+          # DIGEST: ${{ steps.build-and-push.outputs.digest }}
+       
+      - name: Sign Image with Cosign
+        run: docker push ghcr.io/${{ github.repository }}/chainguard:latest
+         
+      # - name: Sign the images with GitHub OIDC Token
+      #   env:
+      #     DIGEST: ${{ steps.build-and-push.outputs.digest }}
+      #     TAGS: ${{ steps.docker_meta.outputs.tags }}
+      #   run: |
+      #     images=""
+      #     for tag in ${TAGS}; do
+      #       images+="${tag}@${DIGEST} "
+      #     done
+      #     cosign sign --yes ${images}
