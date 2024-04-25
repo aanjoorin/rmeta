@@ -22,29 +22,40 @@ jobs:
           sudo apt-get install -y curl 
           # libcurl4-openssl-dev libharfbuzz-dev libfribidi-dev libfreetype6-dev -y
           #sudo apt install build-essential libcurl4-gnutls-dev libxml2-dev libssl-dev jq curl -y
-
+          # Check for updates for ca-certificates
+          apt update -qq
+          if [ $(apt list --upgradable 2>/dev/null | grep ca-certificates | wc -l) -gt 0 ]; then
+            # Updates available, so update ca-certificates
+            apt install --only-upgrade -y ca-certificates
+          else
+            # No updates available or error occurred, so reinstall ca-certificates
+            apt install --reinstall -y ca-certificates
+          fi
+          # Update certificate authorities
+          update-ca-certificates
+          
       - name: Install Cosign
         uses: sigstore/cosign-installer@v3.5.0
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3.0.0
-
+        
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3.3.0
-
+         
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3.1.0
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-
+         
       - id: docker_meta
         uses: docker/metadata-action@v5.5.1
         with:
           images: ghcr.io/sigstore/sample-honk
           tags: type=sha,format=long
-
+        
       - name: Build and Push container images
         run: |
           DOCKER_BUILDKIT=0 docker build -t ghcr.io/${{ github.repository }}/chainguard:latest .
