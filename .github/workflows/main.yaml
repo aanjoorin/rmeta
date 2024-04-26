@@ -1,87 +1,75 @@
+
 name: Build and Security Scan
 
 on: [push, pull_request]
 
-env:
-  REGISTRY: ghcr.io
-  IMAGE_NAME: rmeta
-  
+
 jobs:
-  build-and-scan-and-push:
-    runs-on: arc-runner-set-1
+  build-image:
+    runs-on: ubuntu-latest
+
     permissions:
       contents: read
       packages: write
-    
+      id-token: write # needed for signing the images with GitHub OIDC Token
+
+    name: build-image
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4.1.3
+      - uses: actions/checkout@v3.5.2
         with:
           fetch-depth: 1
-      - name: Install curl 
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y curl 
-          #libcurl4-openssl-dev libharfbuzz-dev libfribidi-dev libfreetype6-dev libc6 -y
-          #sudo apt install build-essential libcurl4-gnutls-dev libxml2-dev libssl-dev jq curl -y
 
-      - name: Setup Docker buildx
-        uses: docker/setup-buildx-action@v3.3.0
+      - name: Install Cosign
+        uses: sigstore/cosign-installer@v3.5.0
 
-      - name: Log into registry
-        uses: docker/login-action@v3.1.0
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v2.1.0
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2.5.0
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v2.1.0
         with:
-          registry: ${{ env.REGISTRY }}
+          registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push Docker image
-        id: build-and-push
-        uses: docker/build-push-action@v5.3.0
+      - id: docker_meta
+        uses: docker/metadata-action@v4.4.0
         with:
-          context: .
+          images: ghcr.io/sigstore/sample-honk
+          tags: type=sha,format=long
+
+      - name: Build and Push container images
+        uses: docker/build-push-action@v4.0.0
+        id: build-and-push
+        with:
+          platforms: linux/amd64,linux/arm/v7,linux/arm64
           push: true
-          tags: ${{ env.REGISTRY }}/${{ github.actor }}/${{ env.IMAGE_NAME }}:${{ github.run_id }}
-      
-      - name: cosign-installer
-        uses: sigstore/cosign-installer@v3.5.0
-      
-      - name: Sign the published Docker image
-        env:
-          COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
+          tags: ${{ steps.docker_meta.outputs.tags }}
+
+      # https://docs.github.com/en/actions/security-guides/security-hardening-for-github-actions#using-an-intermediate-environment-variable
+      - name: Sign image with a key
         run: |
-          cosign sign --key "${{ secrets.COSIGN_PRIVATE_KEY }}" "${{ env.REGISTRY }}/${{ github.actor }}/${{ env.IMAGE_NAME }}:${{ github.run_id }}" --debug
-          shortened_github_run_id=$(echo "${{ github.run_id }}" | cut -c1-6)
-          shortened_image_tag="${{ env.REGISTRY }}/${{ github.actor }}/${{ env.IMAGE_NAME }}:${shortened_github_run_id}"
-          cosign sign --key "${{ secrets.COSIGN_PRIVATE_KEY }}" "${shortened_image_tag}"
-          
-      - name: Sign the published Docker image
+          images=""
+          for tag in ${TAGS}; do
+            images+="${tag}@${DIGEST} "
+          done
+          cosign sign --yes --key env://COSIGN_PRIVATE_KEY ${images}
         env:
+          TAGS: ${{ steps.docker_meta.outputs.tags }}
+          COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
           COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
+          DIGEST: ${{ steps.build-and-push.outputs.digest }}
+
+      - name: Sign the images with GitHub OIDC Token
+        env:
+          DIGEST: ${{ steps.build-and-push.outputs.digest }}
+          TAGS: ${{ steps.docker_meta.outputs.tags }}
         run: |
-          shortened_github_run_id=$(echo "${{ github.run_id }}" | cut -c1-6)
-          shortened_image_tag="${{ env.REGISTRY }}/${{ github.actor }}/${{ env.IMAGE_NAME }}:${shortened_github_run_id}"
-          cosign sign --key "${{ secrets.COSIGN_PRIVATE_KEY }}" "${shortened_image_tag}"
-    
-      # - name: Sign image with a key
-      #   run: |
-      #     cosign sign \
-      #       --key "${COSIGN_PRIVATE_KEY}" \
-      #       "${env.COSIGN_PASSWORD}" \
-      #       -a "repo=${{ github.repository }}" \
-      #       -a "workflow=${{ github.workflow }}" \
-      #       -a "ref=${{ github.sha }}" \
-      #       ${{ env.REGISTRY }}/${{ github.actor }}/${{ env.IMAGE_NAME }}:${{ github.run_id }}
-      #       #"${REGISTRY}/${GITHUB_ACTOR}/${IMAGE_NAME}:${GITHUB_RUN_ID}"
-            
-      #     images=""
-      #     for tag in ${}; do
-      #       images+="${{ env.REGISTRY }}/${{ github.actor }}/${{ env.IMAGE_NAME }}:${{ github.run_id }} "
-      #       #images+="${REGISTRY}/${GITHUB_ACTOR}/${IMAGE_NAME}:${tag}@${DIGEST} "
-      #     done
-      #     cosign sign --yes --key env://COSIGN_PRIVATE_KEY ${images}
-      #   env:
-      #     : ${{ steps.docker_meta.outputs. }}
-      #     COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
-      #     COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
-      #     DIGEST: ${{ steps.build-and-push.outputs.digest }}
+          images=""
+          for tag in ${TAGS}; do
+            images+="${tag}@${DIGEST} "
+          done
+          cosign sign --yes ${images}
