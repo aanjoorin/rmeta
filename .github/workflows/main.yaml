@@ -5,11 +5,8 @@ on: [push, pull_request]
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: rmeta
-  TAGS: ${{ steps.docker_meta.outputs.tags }}
   COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
   COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
-  DIGEST: ${{ steps.build-and-push.outputs.digest }}
-
   
 jobs:
   build-and-scan-and-push:
