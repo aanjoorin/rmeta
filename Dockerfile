@@ -1,4 +1,5 @@
-FROM cgr.dev/chainguard/python:latest 
+FROM python:3.9
+#cgr.dev/chainguard/python:latest 
 ENV PYTHONUNBUFFERED 1
 ENV PYTHONDONTWRITEBYTECODE 1
 WORKDIR /app
