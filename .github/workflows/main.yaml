@@ -49,27 +49,27 @@ jobs:
       - name: Sign the published Docker image
         env:
           COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
-        run: cosign sign --key ${{ secrets.COSIGN_PRIVATE_KEY }} ${{ env.REGISTRY }}/${{ github.actor }}/${{ env.IMAGE_NAME }}:${{ github.run_id }}
+        run: cosign sign --key "${{ secrets.COSIGN_PRIVATE_KEY }}" "${{ env.REGISTRY }}/${{ github.actor }}/${{ env.IMAGE_NAME }}:${{ github.run_id }}"
         
-      - name: Sign image with a key
-        run: |
-          cosign sign \
-            --key "${COSIGN_PRIVATE_KEY}" \
-            --password "${COSIGN_PASSWORD}" \
-            -a "repo=${{ github.repository }}" \
-            -a "workflow=${{ github.workflow }}" \
-            -a "ref=${{ github.sha }}" \
-            "${REGISTRY}/${GITHUB_ACTOR}/${IMAGE_NAME}:${GITHUB_RUN_ID}"
+      # - name: Sign image with a key
+      #   run: |
+      #     cosign sign \
+      #       --key "${COSIGN_PRIVATE_KEY}" \
+      #       --password "${COSIGN_PASSWORD}" \
+      #       -a "repo=${{ github.repository }}" \
+      #       -a "workflow=${{ github.workflow }}" \
+      #       -a "ref=${{ github.sha }}" \
+      #       "${REGISTRY}/${GITHUB_ACTOR}/${IMAGE_NAME}:${GITHUB_RUN_ID}"
             
-          images=""
-          for tag in ${TAGS}; do
-            images+="${REGISTRY}/${GITHUB_ACTOR}/${IMAGE_NAME}:${tag}@${DIGEST} "
-          done
-          cosign sign --yes --key env://COSIGN_PRIVATE_KEY ${images}
-        env:
-          TAGS: ${{ steps.docker_meta.outputs.tags }}
-          COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
-          COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
-          DIGEST: ${{ steps.build-and-push.outputs.digest }}
+      #     images=""
+      #     for tag in ${TAGS}; do
+      #       images+="${REGISTRY}/${GITHUB_ACTOR}/${IMAGE_NAME}:${tag}@${DIGEST} "
+      #     done
+      #     cosign sign --yes --key env://COSIGN_PRIVATE_KEY ${images}
+      #   env:
+      #     TAGS: ${{ steps.docker_meta.outputs.tags }}
+      #     COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
+      #     COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
+      #     DIGEST: ${{ steps.build-and-push.outputs.digest }}
 
        
