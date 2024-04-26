@@ -2,106 +2,71 @@ name: Build and Security Scan
 
 on: [push, pull_request]
 
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: rmeta
+  
 jobs:
-  build-and-scan:
+  build-and-scan-and-push:
     runs-on: arc-runner-set-1
-
     permissions:
       contents: read
       packages: write
-      id-token: write # needed for signing the images with GitHub OIDC Token
-
-    name: build-image
+    
     steps:
-      - uses: actions/checkout@v4.1.3
-        with:
-          fetch-depth: 1
-      - name: Install libcurl4-openssl-dev 
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y curl libcurl4-openssl-dev libharfbuzz-dev libfribidi-dev libfreetype6-dev libc6 -y
-          sudo apt install build-essential libcurl4-gnutls-dev libxml2-dev libssl-dev jq curl -y
-          sudo apt install --reinstall ca-certificates -y
+      - name: Checkout repository
+        uses: actions/checkout@v4.1.3
 
-          # Check for updates for ca-certificates
-          sudo apt update -qq
-          if [ $(apt list --upgradable 2>/dev/null | grep ca-certificates | wc -l) -gt 0 ]; then
-            # Updates available, so update ca-certificates
-            sudo apt install --only-upgrade -y ca-certificates
-          else
-            # No updates available or error occurred, so reinstall ca-certificates
-            sudo apt install --reinstall -y ca-certificates
-          fi
-          # Update certificate authorities
-          sudo update-ca-certificates
-          
-      - name: Install Cosign
-        uses: sigstore/cosign-installer@v3.5.0
-
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3.0.0
-        
-      - name: Set up Docker Buildx
+      - name: Setup Docker buildx
         uses: docker/setup-buildx-action@v3.3.0
-         
-      - name: Login to GitHub Container Registry
+
+      - name: Log into registry
         uses: docker/login-action@v3.1.0
         with:
-          registry: ghcr.io
+          registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-                    
-      # - id: docker_meta
-      #   uses: docker/metadata-action@v5.5.1
-      #   with:
-      #     images:  ghcr.io/${{ github.repository }}/chainguard:latest
-      #     #ghcr.io/sigstore/sample-honk
-      #     tags: type=sha,format=long
+
+      - name: Build and push Docker image
+        id: build-and-push
+        uses: docker/build-push-action@v5.3.0
+        with:
+          context: .
+          push: true
+          tags: ${{ env.REGISTRY }}/${{ github.actor }}/${{ env.IMAGE_NAME }}:${{ github.run_id }}
+      
+      - name: cosign-installer
+        uses: sigstore/cosign-installer@v3.5.0
         
-      - name: Build container images
-        run: |
-          docker buildx build --platform linux/amd64,linux/arm64 -t ghcr.io/${{ github.repository }}/chainguard:latest .
-        
-      #   # uses: docker/build-push-action@v5.3.0
-        
-      # - name: Build & Push container image
-      #   uses: docker/build-push-action@v5.3.0
-      #   with:
-      #     context: .
-      #     file: Dockerfile
-      #     tags: ghcr.io/${{ github.repository }}/chainguard:latest
-      #     platforms: linux/amd64,linux/arm/v7,linux/arm64
-      #     #push: true
-      #     #tags: ${{ steps.docker_meta.outputs.tags }}
+      # - name: Write signing key to disk
+      #   run: 'echo "$KEY" > cosign.key'
+      #   shell: bash
+      #   env:
+      #     KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
+      
+      - name: Sign the published Docker image
+        env:
+          COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
+        run: cosign sign --key cosign.key ${{ env.REGISTRY }}/${{ github.actor }}/${{ env.IMAGE_NAME }}:${{ github.run_id }}
        
-      # https://docs.github.com/en/actions/security-guides/security-hardening-for-github-actions#using-an-intermediate-environment-variable
       - name: Sign image with a key
         run: |
           cosign sign \
-            --key ${COSIGN_PRIVATE_KEY} \
-            --password ${COSIGN_PASSWORD} \
-            ghcr.io/${{ github.repository }}/chainguard:latest
-          # images=""
-          # for tag in ${TAGS}; do
-          #   images+="${tag}@${DIGEST} "
-          # done
-          # cosign sign --yes --key env://COSIGN_PRIVATE_KEY ${images}
+            --key "${COSIGN_PRIVATE_KEY}" \
+            --password "${COSIGN_PASSWORD}" \
+            "${REGISTRY}/${GITHUB_ACTOR}/${IMAGE_NAME}:${GITHUB_RUN_ID}"
+            
+          images=""
+          for tag in ${TAGS}; do
+            images+="${REGISTRY}/${GITHUB_ACTOR}/${IMAGE_NAME}:${tag}@${DIGEST} "
+          done
+          cosign sign --yes --key env://COSIGN_PRIVATE_KEY ${images}
         env:
-          # TAGS: ${{ steps.docker_meta.outputs.tags }}
+          TAGS: ${{ steps.docker_meta.outputs.tags }}
           COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
           COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
-          # DIGEST: ${{ steps.build-and-push.outputs.digest }}
+          DIGEST: ${{ steps.build-and-push.outputs.digest }}
+          REGISTRY: ghcr.io # or any other registry you're using
+          IMAGE_NAME: chainguard # or specify your image name
+
        
-      - name: Push Image
-        run: docker push ghcr.io/${{ github.repository }}/chainguard:latest
-         
-      # - name: Sign the images with GitHub OIDC Token
-      #   env:
-      #     DIGEST: ${{ steps.build-and-push.outputs.digest }}
-      #     TAGS: ${{ steps.docker_meta.outputs.tags }}
-      #   run: |
-      #     images=""
-      #     for tag in ${TAGS}; do
-      #       images+="${tag}@${DIGEST} "
-      #     done
-      #     cosign sign --yes ${images}
