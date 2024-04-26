@@ -1,4 +1,4 @@
-FROM python:3.9
+FROM python:3.12.3
 #cgr.dev/chainguard/python:latest 
 ENV PYTHONUNBUFFERED 1
 ENV PYTHONDONTWRITEBYTECODE 1
