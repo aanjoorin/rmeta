@@ -6,7 +6,7 @@ on: [push, pull_request]
 
 jobs:
   build-image:
-    runs-on: ubuntu-latest
+    runs-on: arc-runner-set-1
 
     permissions:
       contents: read
