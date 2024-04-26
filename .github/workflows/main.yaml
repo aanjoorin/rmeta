@@ -41,7 +41,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ env.REGISTRY }}/${{ github.actor }}/${{ env.IMAGE_NAME }}:v1.0.0.1
+          tags: ${{ env.REGISTRY }}/${{ github.actor }}/${{ env.IMAGE_NAME }}:${{ github.run_id }}
       
       - name: cosign-installer
         uses: sigstore/cosign-installer@v3.5.0
@@ -50,8 +50,8 @@ jobs:
         env:
           COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
         run: |
-          cosign sign --key "${{ secrets.COSIGN_PRIVATE_KEY }}" "${{ env.REGISTRY }}/${{ github.actor }}/${{ env.IMAGE_NAME }}:v1.0.0.1"
-          shortened_github_run_id=$(echo "v1.0.0.1" | cut -c1-6)
+          cosign sign --key "${{ secrets.COSIGN_PRIVATE_KEY }}" "${{ env.REGISTRY }}/${{ github.actor }}/${{ env.IMAGE_NAME }}:${{ github.run_id }}" --debug
+          shortened_github_run_id=$(echo "${{ github.run_id }}" | cut -c1-6)
           shortened_image_tag="${{ env.REGISTRY }}/${{ github.actor }}/${{ env.IMAGE_NAME }}:${shortened_github_run_id}"
           cosign sign --key "${{ secrets.COSIGN_PRIVATE_KEY }}" "${shortened_image_tag}"
           
@@ -59,7 +59,7 @@ jobs:
         env:
           COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
         run: |
-          shortened_github_run_id=$(echo "v1.0.0.1" | cut -c1-6)
+          shortened_github_run_id=$(echo "${{ github.run_id }}" | cut -c1-6)
           shortened_image_tag="${{ env.REGISTRY }}/${{ github.actor }}/${{ env.IMAGE_NAME }}:${shortened_github_run_id}"
           cosign sign --key "${{ secrets.COSIGN_PRIVATE_KEY }}" "${shortened_image_tag}"
     
@@ -71,12 +71,12 @@ jobs:
       #       -a "repo=${{ github.repository }}" \
       #       -a "workflow=${{ github.workflow }}" \
       #       -a "ref=${{ github.sha }}" \
-      #       ${{ env.REGISTRY }}/${{ github.actor }}/${{ env.IMAGE_NAME }}:v1.0.0.1
+      #       ${{ env.REGISTRY }}/${{ github.actor }}/${{ env.IMAGE_NAME }}:${{ github.run_id }}
       #       #"${REGISTRY}/${GITHUB_ACTOR}/${IMAGE_NAME}:${GITHUB_RUN_ID}"
             
       #     images=""
       #     for tag in ${}; do
-      #       images+="${{ env.REGISTRY }}/${{ github.actor }}/${{ env.IMAGE_NAME }}:v1.0.0.1 "
+      #       images+="${{ env.REGISTRY }}/${{ github.actor }}/${{ env.IMAGE_NAME }}:${{ github.run_id }} "
       #       #images+="${REGISTRY}/${GITHUB_ACTOR}/${IMAGE_NAME}:${tag}@${DIGEST} "
       #     done
       #     cosign sign --yes --key env://COSIGN_PRIVATE_KEY ${images}
