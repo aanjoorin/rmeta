@@ -46,15 +46,23 @@ jobs:
       - name: cosign-installer
         uses: sigstore/cosign-installer@v3.5.0
       
+      # - name: Sign the published Docker image
+      #   env:
+      #     COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
+      #   run: |
+      #     #cosign sign --key "${{ secrets.COSIGN_PRIVATE_KEY }}" "${{ env.REGISTRY }}/${{ github.actor }}/${{ env.IMAGE_NAME }}:${{ github.run_id }}"
+      #     shortened_github_run_id=$(echo "${{ github.run_id }}" | cut -c1-16)
+      #     shortened_image_tag="${{ env.REGISTRY }}/${{ github.actor }}/${{ env.IMAGE_NAME }}:${shortened_github_run_id}"
+      #     cosign sign --key "${{ secrets.COSIGN_PRIVATE_KEY }}" "${shortened_image_tag}"
+          
       - name: Sign the published Docker image
         env:
           COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
         run: |
-          cosign sign --key "${{ secrets.COSIGN_PRIVATE_KEY }}" "${{ env.REGISTRY }}/${{ github.actor }}/${{ env.IMAGE_NAME }}:${{ github.run_id }}"
-          half_length=$(( ${{ #github.run_id }} / 2 ))
-          shortened_tag=$(echo "$github.run_id" | cut -c1-$half_length)
-          echo "${{ env.REGISTRY }}/${{ github.actor }}/${{ env.IMAGE_NAME }}:$shortened_tag"
-          
+          shortened_github_run_id=$(echo "${{ github.run_id }}" | cut -c1-16)
+          shortened_image_tag="${{ env.REGISTRY }}/${{ github.actor }}/${{ env.IMAGE_NAME }}:${shortened_github_run_id}"
+          cosign sign --key "${{ secrets.COSIGN_PRIVATE_KEY }}" "${shortened_image_tag}"
+    
       # - name: Sign image with a key
       #   run: |
       #     cosign sign \
