@@ -1,4 +1,4 @@
-name: Build and Push Docker Image (DEV)
+name: Build, Push and Sign Docker Image
 
 on:
   workflow_dispatch:
@@ -49,18 +49,26 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
 
-      - name: Build Docker image
-        uses: docker/build-push-action@v5.1.0
-        with:
-          context: .
-          platforms: linux/amd64
-          file: Dockerfile
-          build-args: |
-            BTPSA_VERSION_GIT_ARG=${{ github.sha }}
-          push: true
-          tags: ${{ steps.meta.outputs.digest }}
-          labels: ${{ steps.meta.outputs.labels }}
+      # - name: Build Docker image
+      #   uses: docker/build-push-action@v5.1.0
+      #   with:
+      #     context: .
+      #     platforms: linux/amd64
+      #     file: Dockerfile
+      #     build-args: |
+      #       BTPSA_VERSION_GIT_ARG=${{ github.sha }}
+      #     push: true
+      #     tags: ${{ steps.meta.outputs.digest }}
+      #     labels: ${{ steps.meta.outputs.labels }}
 
+      - name: Build Docker image
+        id: build-and-push
+        run: |
+          docker build -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }} .
+          docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+          digest=$(docker inspect --format='{{index .RepoDigests 0}}' ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }})
+          echo "::set-output name=digest::$digest"
+       
       - name: Install Cosign
         uses: sigstore/cosign-installer@v3.5.0
          
