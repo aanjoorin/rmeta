@@ -6,7 +6,7 @@ WORKDIR /code
 COPY . /code/
 COPY requirements.txt /code/
 #RUN pip install --upgrade pip
-RUN /bin/sh -c pip install --no-cache-dir -r requirements.txt .
+RUN pip3 install --no-cache-dir -r requirements.txt .
 LABEL auth="Ademiju Anjoorin"
 #COPY . .
 EXPOSE 8000
