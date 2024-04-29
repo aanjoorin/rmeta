@@ -1,4 +1,4 @@
-FROM cgr.dev/chainguard/python:latest-dev as builder
+FROM cgr.dev/chainguard/python as builder
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 #RUN groupadd -r demi && useradd -r -g demi demi
@@ -7,7 +7,7 @@ COPY requirements.txt .
 RUN mkdir /install \
     && pip install --prefix=/install -r requirements.txt
 
-FROM cgr.dev/chainguard/python:latest-dev
+FROM cgr.dev/chainguard/python
 COPY --from=builder /install /usr/local
 WORKDIR /code
 
