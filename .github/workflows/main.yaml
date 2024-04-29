@@ -57,7 +57,7 @@ jobs:
         with:
           context: .
           platforms: linux/amd64
-          file: ./config/Dockerfile
+          file: Dockerfile
           build-args: |
             BTPSA_VERSION_GIT_ARG=${{ github.sha }}
           push: true
