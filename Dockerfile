@@ -3,10 +3,11 @@ FROM python:3.12.3
 ENV PYTHONUNBUFFERED 1
 ENV PYTHONDONTWRITEBYTECODE 1
 WORKDIR /app
-COPY requirements.txt .
+COPY . /app/
+COPY requirements.txt /app/
 #RUN pip install --upgrade pip
-RUN pip3 install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt .
 LABEL auth="Ademiju Anjoorin"
-COPY . .
+#COPY . .
 EXPOSE 8000
 ENTRYPOINT [ "python", "manage.py", "runserver", "0.0.0.0:8000" ]
