@@ -67,12 +67,12 @@ jobs:
       - name: sign container image
         run: |
             #cosign sign --key env://COSIGN_KEY /${{ env.REGISTRY }}/${{ github.actor }}:${{ env.VERSION }}
-            cosign sign --key env://COSIGN_KEY /${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-            #:${{ env.VERSION }}
+            cosign sign --key env://COSIGN_KEY /${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.DIGEST }}
         shell: bash
         env:
           COSIGN_KEY: ${{secrets.COSIGN_PRIVATE_KEY}}
           COSIGN_PASSWORD: ${{secrets.COSIGN_PASSWORD}}
+          DIGEST: ${{ steps.build-and-push.outputs.digest }}
       
       # - name: Sign image with a key
       #   run: |
