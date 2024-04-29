@@ -5,8 +5,8 @@ ENV PYTHONUNBUFFERED 1
 WORKDIR /code
 COPY . /code/
 COPY requirements.txt /code/
-#RUN pip install --upgrade pip
-RUN pip3 install --no-cache-dir -r requirements.txt --debug
+RUN pip install --upgrade pip
+RUN pip install --no-cache-dir -r requirements.txt
 RUN python3 setup.py install
 LABEL auth="Ademiju Anjoorin"
 #COPY . .
