@@ -6,7 +6,7 @@ WORKDIR /app
 COPY . /app/
 COPY requirements.txt /app/
 #RUN pip install --upgrade pip
-RUN pip install --no-cache-dir -r requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 LABEL auth="Ademiju Anjoorin"
 #COPY . .
 EXPOSE 8000
