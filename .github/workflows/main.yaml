@@ -6,8 +6,7 @@ on:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
-  #DEV_BRANCH: dev
-
+  
 jobs:
   build_and_push:
     runs-on: arc-runner-set-2
