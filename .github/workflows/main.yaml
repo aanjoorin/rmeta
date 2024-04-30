@@ -5,8 +5,8 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}-dev
-  DEV_BRANCH: dev
+  IMAGE_NAME: ${{ github.repository }}
+  #DEV_BRANCH: dev
 
 jobs:
   build_and_push:
@@ -33,8 +33,6 @@ jobs:
         with:
           driver-opts: |
             image=moby/buildkit:v0.11.6
-        #with:
-        #  buildkitd-flags: --debug
 
       - name: Log in to the Container registry
         uses: docker/login-action@v3
@@ -49,18 +47,6 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
 
-      # - name: Build Docker image
-      #   uses: docker/build-push-action@v5.1.0
-      #   with:
-      #     context: .
-      #     platforms: linux/amd64
-      #     file: Dockerfile
-      #     build-args: |
-      #       BTPSA_VERSION_GIT_ARG=${{ github.sha }}
-      #     push: true
-      #     tags: ${{ steps.meta.outputs.digest }}
-      #     labels: ${{ steps.meta.outputs.labels }}
-
       - name: Build Docker image
         id: build-and-push
         run: |
@@ -74,24 +60,4 @@ jobs:
          
       - name: sign container image
         run: |
-            cosign sign --key env://COSIGN_KEY ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:$digest
-            #{{ github.sha }}
-            #cosign sign --key env://COSIGN_KEY ${{ env.IMAGE_NAME }}:${{ steps.build-and-push.outputs.digest }}
-        shell: bash
-        env:
-          COSIGN_KEY: ${{secrets.COSIGN_PRIVATE_KEY}}
-          COSIGN_PASSWORD: ${{secrets.COSIGN_PASSWORD}}
-         # DIGEST: ${{ steps.build-and-push.outputs.digest }}
-      
-      # - name: Sign image with a key
-      #   run: |
-      #     images=""
-      #     for tag in ${TAGS}; do
-      #       images+="${tag}@${DIGEST} "
-      #     done
-      #     cosign sign --yes --key ${{ secrets.COSIGN_PRIVATE_KEY }} ${images}
-      #   env:
-      #     TAGS: ${{ steps.docker_meta.outputs.tags }}
-      #     COSIGN_PRIVATE_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
-      #     COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
-      #     DIGEST: ${{ steps.build-and-push.outputs.digest }}
+            cosign sign --key env://COSIGN_KEY ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
