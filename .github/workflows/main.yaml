@@ -24,6 +24,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y curl libcurl4-openssl-dev libharfbuzz-dev libfribidi-dev libfreetype6-dev libc6 -y
           sudo apt install build-essential libcurl4-gnutls-dev libxml2-dev libssl-dev jq curl -y
+          sudo apt-get install -y ca-certificates
           
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
