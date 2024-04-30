@@ -63,10 +63,16 @@ jobs:
               
       - name: Install Cosign
         uses: sigstore/cosign-installer@v3.5.0
-         
-      - name: sign container image
-        run: |
-            cosign sign --key env://COSIGN_KEY ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }} -y
+
+      - name: Sign the published Docker image
         env:
+          COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
           COSIGN_KEY: ${{secrets.COSIGN_PRIVATE_KEY}}
-          COSIGN_PASSWORD: ${{secrets.COSIGN_PASSWORD}}
+        run: cosign sign --key COSIGN.KEY ${{ env.REGISTRY }}/${{ github.actor }}/${{ env.IMAGE_NAME }}:${{ github.run_id }}
+        
+      # - name: sign container image
+      #   run: |
+      #       cosign sign --key env://COSIGN_KEY ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }} -y
+      #   env:
+      #     COSIGN_KEY: ${{secrets.COSIGN_PRIVATE_KEY}}
+      #     COSIGN_PASSWORD: ${{secrets.COSIGN_PASSWORD}}
