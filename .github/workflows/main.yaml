@@ -54,12 +54,12 @@ jobs:
           docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
           #digest=$(docker inspect --format='{{index .RepoDigests 0}}' ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }})
            
-      - name: Set output and write to file
-        run: |
-          echo "digest=$digest" >> $GITHUB_OUTPUT
-        env:
-          digest: $digest
-          GITHUB_OUTPUT: $GITHUB_WORKSPACE/output.txt
+      # - name: Set output and write to file
+      #   run: |
+      #     echo "digest=$digest" >> $GITHUB_OUTPUT
+      #   env:
+      #     digest: $digest
+      #     GITHUB_OUTPUT: $GITHUB_WORKSPACE/output.txt
               
       - name: Install Cosign
         uses: sigstore/cosign-installer@v3.5.0
@@ -68,7 +68,7 @@ jobs:
         env:
           COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
           #COSIGN_KEY: ${{secrets.COSIGN_PRIVATE_KEY}}
-        run: cosign sign --key  ${{ secrets.COSIGN_PRIVATE_KEY }} ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@sha:$digest -y --debug
+        run: cosign sign --key  ${{ secrets.COSIGN_PRIVATE_KEY }} ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@$digest -y --debug
         #{{ github.sha }}
         
         
