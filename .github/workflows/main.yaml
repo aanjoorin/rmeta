@@ -68,7 +68,7 @@ jobs:
         env:
           COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
           #COSIGN_KEY: ${{secrets.COSIGN_PRIVATE_KEY}}
-        run: cosign sign --key  ${{secrets.COSIGN_PRIVATE_KEY}} ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@sha:$digest -y --debug
+        run: cosign sign --key  ${{ secrets.COSIGN_PRIVATE_KEY }} ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@sha:$digest -y --debug
         #{{ github.sha }}
         
         
