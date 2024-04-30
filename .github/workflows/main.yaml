@@ -67,9 +67,13 @@ jobs:
       - name: Sign the published Docker image
         env:
           COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
-          #COSIGN_KEY: ${{secrets.COSIGN_PRIVATE_KEY}}
-        run: cosign sign --key  ${{ secrets.COSIGN_PRIVATE_KEY }} ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}@$digest -y --debug
-        #{{ github.sha }}
+          COSIGN_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
+        run: cosign sign --key  $COSIGN_KEY ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:{{ github.sha }} -y --debug
+          cat ${{ secrets.COSIGN_PRIVATE_KEY }}
+          cat ${{ secrets.COSIGN_PASSWORD }}
+          cat COSIGN_PASSWORD
+          cat COSIGN_KEY
+        
         
         
       # - name: sign container image
