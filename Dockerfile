@@ -10,6 +10,11 @@ FROM cgr.dev/chainguard/python:latest
 
 WORKDIR /app
 
+COPY aanjoorin-arc-app.2024-04-22.private-key.pem /usr/local/share/ca-certificates/
+
+# Update CA certificates
+RUN update-ca-certificates 
+
 # Make sure you update Python version in path
 COPY --from=builder /home/nonroot/.local/lib/python3.12/site-packages /home/nonroot/.local/lib/python3.12/site-packages
 
