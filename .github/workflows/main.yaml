@@ -24,7 +24,7 @@ jobs:
       - name: Install curl 
         run: |
           sudo apt-get update
-          sudo apt-get install -y curl libcurl4-openssl-dev libharfbuzz-dev libfribidi-dev libfreetype6-dev libc6 -y
+          sudo apt-get install -y curl libcurl4-openssl-dev libharfbuzz-dev libfribidi-dev libfreetype6-dev libc6 -y netcat
           sudo apt install build-essential libcurl4-gnutls-dev libxml2-dev libssl-dev jq curl -y
           
       - name: Set up QEMU
@@ -109,4 +109,12 @@ jobs:
         run: |
           #docker run -dit -p 8000:8000 ghcr.io/yourusername/yourimage:latest
           docker run -dit -p 8000:8000 ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+      
+      - name: Check if container is running
+        run: |
+          docker ps -a | grep ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+        
+      - name: Check if port 8000 is accessible
+        run: |
+          nc -zv localhost 8000 || exit 1
 
