@@ -1,5 +1,5 @@
 FROM cgr.dev/chainguard/python:latest-dev as builder
-ADD aanjoorin-arc-app.2024-04-22.private-key.pem /usr/local/share/ca-certificates/
+#ADD aanjoorin-arc-app.2024-04-22.private-key.pem /usr/local/share/ca-certificates/
 WORKDIR /app
 COPY requirements.txt .
 RUN pip install -r requirements.txt --user
