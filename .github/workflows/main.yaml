@@ -14,8 +14,6 @@ jobs:
     
   build_and_push:
     runs-on: arc-runner-set
-    container:
-      image: ubuntu-latest
     permissions:
       contents: read
       packages: write
