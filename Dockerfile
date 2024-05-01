@@ -4,7 +4,7 @@ ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 WORKDIR /app
 COPY requirements.txt .
-RUN pip3 install -r requirements.txt
+RUN /bin/sh -c pip3 install -r requirements.txt
 LABEL auth="Ademiju Anjoorin"
 COPY . .
 EXPOSE 8000
