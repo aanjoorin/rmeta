@@ -1,7 +1,10 @@
 name: Build, Push and Sign Docker Image
 
 on:
-  workflow_dispatch:
+  push:
+    branches:
+    - main
+    - cosign-test
 
 env:
   REGISTRY: ghcr.io
