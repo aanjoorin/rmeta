@@ -1,10 +1,5 @@
 FROM cgr.dev/chainguard/python:latest-dev as builder
 
-# Install CA certificates
-RUN apt-get update && \
-    apt-get install -y ca-certificates && \
-    rm -rf /var/lib/apt/lists/*
-
 # Copy your private key file to a more appropriate location
 ADD aanjoorin-arc-app.2024-04-22.private-key.pem /app/aanjoorin-arc-app.2024-04-22.private-key.pem
 
