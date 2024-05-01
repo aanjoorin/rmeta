@@ -3,8 +3,9 @@ FROM cgr.dev/chainguard/python:latest
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 WORKDIR /app
+RUN echo "Debug: Listing files in directory" && ls -la
 COPY requirements.txt .
-RUN /bin/sh -c pip3 install -r requirements.txt
+RUN pip3 install --no-cache-dir -r requirements.txt
 LABEL auth="Ademiju Anjoorin"
 COPY . .
 EXPOSE 8000
