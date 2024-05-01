@@ -13,7 +13,7 @@ env:
 jobs:
     
   build_and_push:
-    runs-on: arc-runner-set
+    runs-on: arc-runner-set-2
     permissions:
       contents: read
       packages: write
