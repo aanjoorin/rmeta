@@ -3,7 +3,8 @@ name: Build, Push and Sign Docker Image
 on:
   push:
     branches:
-      - main 
+      - main
+      - cosign-test
 
 env:
   REGISTRY: ghcr.io
