@@ -100,7 +100,11 @@ jobs:
         run: |
           #cosign verify --key env://COSIGN_PUB_KEY ghcr.io/yourusername/yourimage:latest
           cosign verify --key env://COSIGN_PUB_KEY ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
-
+        env:
+          # COSIGN_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
+          # COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
+          COSIGN_PUB_KEY: ${{ secrets.COSIGN_PUBLIC_KEY }}
+         
       - name: Run Docker Container
         run: |
           #docker run -dit -p 8000:8000 ghcr.io/yourusername/yourimage:latest
