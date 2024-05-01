@@ -18,7 +18,7 @@ ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
 # Install system dependencies
-RUN /bin/sh -c 'apt-get update && apt-get install -y bash && rm -rf /var/lib/apt/lists/*'
+RUN /bin/sh -c 'apk update && apk install -y bash && rm -rf /var/lib/apk/lists/*'
 
 # Set the working directory
 WORKDIR /app
