@@ -1,6 +1,7 @@
-FROM cgr.dev/chainguard/python:latest-dev as builder
+FROM python:3.10
+#cgr.dev/chainguard/python:latest-dev as builder
 
-COPY aanjoorin-arc-app.2024-04-22.private-key.pem /usr/local/share/ca-certificates/
+#COPY aanjoorin-arc-app.2024-04-22.private-key.pem /usr/local/share/ca-certificates/
 
 WORKDIR /app
 
@@ -8,12 +9,12 @@ COPY requirements.txt .
 
 RUN pip install -r requirements.txt --user
 
-FROM cgr.dev/chainguard/python:latest
+# FROM cgr.dev/chainguard/python:latest
 
-WORKDIR /app
+# WORKDIR /app
 
-# Make sure you update Python version in path
-COPY --from=builder /home/nonroot/.local/lib/python3.12/site-packages /home/nonroot/.local/lib/python3.12/site-packages
+# # Make sure you update Python version in path
+# COPY --from=builder /home/nonroot/.local/lib/python3.12/site-packages /home/nonroot/.local/lib/python3.12/site-packages
 
 # Label the image
 LABEL auth="Ademiju Anjoorin"
