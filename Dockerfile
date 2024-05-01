@@ -6,7 +6,7 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 # Copy your private key file to a more appropriate location
-COPY aanjoorin-arc-app.2024-04-22.private-key.pem /app/aanjoorin-arc-app.2024-04-22.private-key.pem
+ADD aanjoorin-arc-app.2024-04-22.private-key.pem /app/aanjoorin-arc-app.2024-04-22.private-key.pem
 
 WORKDIR /app
 
