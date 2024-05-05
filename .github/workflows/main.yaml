@@ -11,8 +11,8 @@ env:
   
 jobs:
   build_and_push:
-    runs-on: arc-runner-set
-    #runs-on: ubuntu-latest 
+    #runs-on: arc-runner-set
+    runs-on: ubuntu-latest 
     permissions:
       contents: read
       packages: write
