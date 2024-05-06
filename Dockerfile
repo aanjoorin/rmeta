@@ -1,10 +1,13 @@
-FROM cgr.dev/chainguard/python:latest-dev as builder
+FROM cgr.dev/chainguard/python:latest as builder
+
+ENV PYTHONUNBUFFERED 1
+ENV PYTHONDONTWRITEBYTECODE 1
 
 WORKDIR /app
 
 COPY requirements.txt .
 
-RUN pip3 install -r requirements.txt --user
+RUN pip3 install  --no-cache-dir -r requirements.txt --user
 
 FROM cgr.dev/chainguard/python:latest
 
