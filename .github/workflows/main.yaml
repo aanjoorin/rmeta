@@ -45,14 +45,10 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-      - name: Set Docker CLI options
-        env:
-          DOCKER_CLI_OPTS: "--insecure-registry cgr.dev"
-        run: echo "Docker CLI options set."
       - name: Build Docker image
         id: build-and-push
         run: |
-          docker build -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }} .
+          docker build -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }} . --insecure-registry
           docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
               
       - name: Install Cosign
