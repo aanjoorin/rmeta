@@ -4,11 +4,15 @@ on:
   push:
     branches:
       - main
-
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
-  DOCKER_CLI_OPTS: "--insecure-registry ${{ env.REGISTRY }}"
+  DOCKER_CLI_OPTS: "--insecure-registry  ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}"
+
+# env:
+#   REGISTRY: ghcr.io
+#   IMAGE_NAME: ${{ github.repository }}
+#   DOCKER_CLI_OPTS: "--insecure-registry ${{ env.REGISTRY }}"
 
 jobs:
   job-1:
@@ -49,7 +53,7 @@ jobs:
       - name: Build Docker image
         id: build-and-push
         run: |
-          docker build -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }} . --insecure-registry
+          docker build -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }} . 
           docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
               
       - name: Install Cosign
