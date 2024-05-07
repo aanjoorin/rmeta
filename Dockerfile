@@ -7,7 +7,7 @@ WORKDIR /app
 
 COPY requirements.txt .
 
-RUN pip3 install  --no-cache-dir -r requirements.txt --user
+RUN pip install  --no-cache-dir -r requirements.txt --user
 
 FROM cgr.dev/chainguard/python:latest
 
@@ -20,6 +20,6 @@ COPY . .
 
 EXPOSE 8000
 
-ENTRYPOINT [ "python", "manage.py", "runserver", "0.0.0.0:8000" ]
+ENTRYPOINT [ "python3", "manage.py", "runserver", "0.0.0.0:8000" ]
 
 LABEL auth="Ademiju Anjoorin"
