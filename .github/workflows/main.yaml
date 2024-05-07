@@ -89,3 +89,4 @@ jobs:
           cosign verify --key env://COSIGN_PUB_KEY ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
         env:
           COSIGN_PUB_KEY: ${{ secrets.COSIGN_PUBLIC_KEY }}
+          
