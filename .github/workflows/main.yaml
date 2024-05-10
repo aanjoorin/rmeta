@@ -10,10 +10,9 @@ env:
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
-  job-1:
+  job:
     name: Build, Push, and Sign Image
     runs-on: arc-runner-set
-    #runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
@@ -55,7 +54,9 @@ jobs:
       - name: Sign container image
         run: |
           echo $COSIGN_PASSWORD | cosign sign --key env://COSIGN_KEY ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }} -y
+       
+      - name: Verify Docker Image
+        run: |
+          cosign verify --key env://COSIGN_PUB_KEY ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
         env:
-          COSIGN_KEY: ${{ secrets.COSIGN_PRIVATE_KEY }}
-          COSIGN_PASSWORD: ${{ secrets.COSIGN_PASSWORD }}
           COSIGN_PUB_KEY: ${{ secrets.COSIGN_PUBLIC_KEY }}
